@@ -1,3 +1,6 @@
 Flask
 jwt
 ollama
+jwks
+boto3
+
