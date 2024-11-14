@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  flask-api:
+    build:
+      context: ./backend  # Path to the Flask app Dockerfile
+      dockerfile: Dockerfile  # Name of the Dockerfile for Flask
+    image: flask-api:latest
+    container_name: flask-api
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - OLLAMA_API_URL=http://ollama-api:11400  # Internal URL to reach Ollama API
+    depends_on:
+      - ollama-api  # Ensures Ollama API starts before Flask API
+    networks:
+      - app-network
+
+  ollama-api:
+    build:
+      context: ./ollama_app  # Path to the Ollama API Dockerfile
+      dockerfile: Dockerfile  # Name of the Dockerfile for Ollama
+    image: ollama-api:latest
+    container_name: ollama-api
+    ports:
+      - "11400:11400"
+    volumes:
+      - ./models:/models  # Mounting model files if necessary
+    command: >
+      ollama create adaptive-language-coach --from -f /models/modelfile
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
